@@ -8,6 +8,7 @@ const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_TIERLIST_ADDRESS || "";
 
 const Tierlist = () => {
   const router = useRouter();
+  const [message, setMessage] = useState("");
   const [tierlist, setTierlist] = useState<any>({
     template_id: -1,
     items_to_tiers: [],
@@ -82,6 +83,7 @@ const Tierlist = () => {
         msg,
         "auto"
       );
+      setMessage("Saved tierlist successfully!");
     } catch (err) {
       console.error(err);
     }
@@ -104,6 +106,11 @@ const Tierlist = () => {
 
   return (
     <WalletLoader>
+      {message && (
+        <div className="w-full flex justify-center border-4 p-2 text-xl">
+          {message}
+        </div>
+      )}
       <div className="w-full flex justify-center">
         <div className="w-1/2">
           <h1 className="text-3xl">{template?.title}</h1>

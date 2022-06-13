@@ -17,11 +17,20 @@ const Home: NextPage = () => {
         await signingClient?.queryContractSmart(CONTRACT_ADDRESS, {
           templates: { start_after: null, limit: null },
         });
-      console.log(templates);
       setTemplates(templates);
     };
     main();
   }, [signingClient]);
+
+  const onCreate = async () => {
+    const templates: [number, any][] = await signingClient?.queryContractSmart(
+      CONTRACT_ADDRESS,
+      {
+        templates: { start_after: null, limit: null },
+      }
+    );
+    setTemplates(templates);
+  };
 
   return (
     <WalletLoader>
@@ -35,7 +44,7 @@ const Home: NextPage = () => {
           >
             <p>Connected as: {walletAddress}</p>
           </div>
-          <TemplateForm />
+          <TemplateForm onCreate={onCreate} />
           <h2 className="text-2xl">Templates</h2>
           <div>
             {templates?.map((tuple) => {

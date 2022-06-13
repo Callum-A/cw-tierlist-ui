@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { FC, useState } from "react";
 import { useSigningClient } from "contexts/cosmwasm";
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_TIERLIST_ADDRESS || "";
 
-export default function TemplateForm() {
+const TemplateForm: FC<{ onCreate: Function | undefined }> = ({ onCreate }) => {
   const { walletAddress, signingClient } = useSigningClient();
   const [title, setTitle] = useState("");
   const [itemName, setItemName] = useState("");
@@ -57,6 +57,9 @@ export default function TemplateForm() {
       setItemName("");
       setItemImage("");
       setItems([]);
+      if (onCreate) {
+        onCreate();
+      }
     } catch (err) {
       console.error(err);
     }
@@ -144,4 +147,6 @@ export default function TemplateForm() {
       </div>
     </div>
   );
-}
+};
+
+export default TemplateForm;
