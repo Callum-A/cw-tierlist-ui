@@ -1,15 +1,12 @@
-import "styles/globals.css";
-import type { AppProps } from "next/app";
-import Layout from "components/Layout";
-import { SigningCosmWasmProvider } from "contexts/cosmwasm";
+import 'styles/globals.css';
+import type { AppProps } from 'next/app';
+import { SigningCosmWasmProvider } from 'contexts/cosmwasm';
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return (
-    <SigningCosmWasmProvider>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </SigningCosmWasmProvider>
-  );
+    return (
+        <SigningCosmWasmProvider>
+            <Component {...pageProps} />
+        </SigningCosmWasmProvider>
+    );
 }
 export default MyApp;
