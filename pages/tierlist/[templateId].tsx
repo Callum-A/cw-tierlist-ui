@@ -167,7 +167,7 @@ const Tierlist = () => {
             {Object.keys(tierlistMap).map((tier: string) => {
               const assignedItems = tierlistMap[tier];
               return (
-                <div key={tier}>
+                <div key={tier} className="border-4 p-2 my-2">
                   <h3 className="text-xl pb-2">
                     {tier === "" ? "Unassigned" : tier}
                   </h3>
