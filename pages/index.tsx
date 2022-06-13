@@ -9,7 +9,7 @@ import TemplateListItem from "components/TemplateListItem";
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_TIERLIST_ADDRESS || "";
 
 const Home: NextPage = () => {
-  const { signingClient } = useSigningClient();
+  const { signingClient, walletAddress, disconnect } = useSigningClient();
   const [templates, setTemplates] = useState<[number, any][]>();
   useEffect(() => {
     const main = async () => {
@@ -28,7 +28,15 @@ const Home: NextPage = () => {
       <div className="w-full flex justify-center">
         <div className="w-1/2">
           <h1 className="text-3xl">Cosmwasm Tierlist</h1>
+          <div
+            className="border-4 p-2 m-2"
+            onClick={(e) => disconnect()}
+            style={{ cursor: "pointer" }}
+          >
+            <p>Connected as: {walletAddress}</p>
+          </div>
           <TemplateForm />
+          <h2 className="text-2xl">Templates</h2>
           <div>
             {templates?.map((tuple) => {
               const id = tuple[0];

@@ -15,7 +15,7 @@ const Tierlist = () => {
   const [selectedItem, setSelectedItem] = useState("");
   const [tier, setTier] = useState("");
   const [template, setTemplate] = useState<any>({ title: "", items: [] });
-  const { walletAddress, signingClient } = useSigningClient();
+  const { walletAddress, signingClient, disconnect } = useSigningClient();
   const { templateId } = router.query;
   const casted = Number.parseInt(templateId as string);
 
@@ -107,9 +107,17 @@ const Tierlist = () => {
       <div className="w-full flex justify-center">
         <div className="w-1/2">
           <h1 className="text-3xl">{template?.title}</h1>
+
           <small className="pb-2 hover:underline" style={{ cursor: "pointer" }}>
             <Link href="/">Home</Link>
           </small>
+          <div
+            className="border-4 p-2 m-2"
+            onClick={(e) => disconnect()}
+            style={{ cursor: "pointer" }}
+          >
+            <p>Connected as: {walletAddress}</p>
+          </div>
           <h2 className="text-2xl pb-2">Assign Item</h2>
           <form onSubmit={addToTier}>
             <div className="pb-2">
