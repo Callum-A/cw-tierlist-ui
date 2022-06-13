@@ -67,6 +67,8 @@ const Tierlist = () => {
       items_to_tiers: newItemsToTiers,
     };
     setTierlist(newTierlist);
+    setSelectedItem("");
+    setTier("");
   };
 
   const saveTierlist = async (e: React.MouseEvent) => {
@@ -139,24 +141,19 @@ const Tierlist = () => {
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                   type="text"
                   list="existingOptions"
+                  placeholder="Type or select an existing tier e.g. S"
                   value={tier}
                   onChange={(e) => setTier(e.target.value)}
                 />
               </label>
             </div>
-
             <datalist id="existingOptions">
               <option key="" value="Unassigned">
                 Unassigned
               </option>
-              {tierlist?.items_to_tiers.map((item: any) => {
-                if (item[1] === "") return <></>;
-                return (
-                  <option key={item[0].name} value={item[1]}>
-                    {item[1]}
-                  </option>
-                );
-              })}
+              {Object.keys(tierlistMap).map((tier: string) => (
+                <option key={tier}>{tier}</option>
+              ))}
             </datalist>
             <button className="border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline mb-2">
               Add To Tier
