@@ -4,6 +4,7 @@ import WalletLoader from 'components/WalletLoader';
 import { useSigningClient } from 'contexts/cosmwasm';
 import { useEffect, useState } from 'react';
 import TemplateForm from 'components/TemplateForm';
+import TemplateListItem from 'components/TemplateListItem';
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_TIERLIST_ADDRESS || '';
 
@@ -32,15 +33,12 @@ const Home: NextPage = () => {
                         {templates?.map((tuple) => {
                             const id = tuple[0];
                             const template = tuple[1];
-                            const itemNames: string[] = [];
-                            template.items.forEach((item: any) => {
-                                itemNames.push(item.name);
-                            });
                             return (
-                                <div key={id}>
-                                    <h2>{template.title}</h2>
-                                    <p>Items: {itemNames.join(', ')}</p>
-                                </div>
+                                <TemplateListItem
+                                    key={id}
+                                    template={template}
+                                    id={id}
+                                />
                             );
                         })}
                     </div>
