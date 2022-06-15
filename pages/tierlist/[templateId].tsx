@@ -17,7 +17,9 @@ const Tierlist = () => {
   const [tier, setTier] = useState("");
   const [template, setTemplate] = useState<any>({ title: "", items: [] });
   const { walletAddress, signingClient, disconnect } = useSigningClient();
-  const { templateId } = router.query;
+  const { templateId, address } = router.query;
+  const addressToUse = !address ? walletAddress : (address as string);
+  const canEdit = addressToUse === walletAddress;
   const casted = Number.parseInt(templateId as string);
 
   useEffect(() => {
@@ -37,7 +39,7 @@ const Tierlist = () => {
       const userTierlistResponse = await signingClient?.queryContractSmart(
         CONTRACT_ADDRESS,
         {
-          tierlist: { address: walletAddress || "", id: casted },
+          tierlist: { address: addressToUse || "", id: casted },
         }
       );
       console.log({ tierlistResponse, userTierlistResponse });
@@ -51,7 +53,7 @@ const Tierlist = () => {
       setTemplate(templateResponse?.template);
     };
     main();
-  }, [casted, signingClient, walletAddress]);
+  }, [casted, signingClient, addressToUse]);
 
   const addToTier = (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +89,13 @@ const Tierlist = () => {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const shareTierlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const url = window.origin + router.asPath;
+    navigator.clipboard.writeText(url);
+    setMessage("Share link copied to clipboard!");
   };
 
   const tierlistMap: any = {};
@@ -125,57 +134,62 @@ const Tierlist = () => {
           >
             <p>Connected as: {walletAddress}</p>
           </div>
-          <h2 className="text-2xl pb-2">Assign Item</h2>
-          <form onSubmit={addToTier}>
-            <div className="pb-2">
-              <label>
-                <p>Item</p>
-                <select
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  value={selectedItem}
-                  onChange={(e) => setSelectedItem(e.target.value)}
-                >
-                  <option value="" disabled selected>
-                    Select an Item
-                  </option>
-                  {tierlist?.items_to_tiers.map((item: any) => {
-                    console.log(item);
-                    return (
-                      <option key={item[0].name} value={item[0].name}>
-                        {item[0].name}
+          {canEdit && (
+            <div>
+              <form onSubmit={addToTier}>
+                <div className="pb-2">
+                  <label>
+                    <p>Item</p>
+                    <select
+                      className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                      value={selectedItem}
+                      onChange={(e) => setSelectedItem(e.target.value)}
+                    >
+                      <option value="" disabled selected>
+                        Select an Item
                       </option>
-                    );
-                  })}
-                </select>
-              </label>
+                      {tierlist?.items_to_tiers.map((item: any) => {
+                        console.log(item);
+                        return (
+                          <option key={item[0].name} value={item[0].name}>
+                            {item[0].name}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </label>
+                </div>
+                <div className="pb-2">
+                  <label>
+                    <p>Tier</p>
+                    <input
+                      className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                      type="text"
+                      list="existingOptions"
+                      placeholder="Type or select an existing tier e.g. S"
+                      value={tier}
+                      onChange={(e) => setTier(e.target.value)}
+                    />
+                  </label>
+                </div>
+                <datalist id="existingOptions">
+                  <option key="" value="Unassigned">
+                    Unassigned
+                  </option>
+                  {Object.keys(tierlistMap).map((tier: string) => (
+                    <option key={tier}>{tier}</option>
+                  ))}
+                </datalist>
+                <button className="border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline mb-2">
+                  Add To Tier
+                </button>
+              </form>
             </div>
-            <div className="pb-2">
-              <label>
-                <p>Tier</p>
-                <input
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  type="text"
-                  list="existingOptions"
-                  placeholder="Type or select an existing tier e.g. S"
-                  value={tier}
-                  onChange={(e) => setTier(e.target.value)}
-                />
-              </label>
-            </div>
-            <datalist id="existingOptions">
-              <option key="" value="Unassigned">
-                Unassigned
-              </option>
-              {Object.keys(tierlistMap).map((tier: string) => (
-                <option key={tier}>{tier}</option>
-              ))}
-            </datalist>
-            <button className="border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline mb-2">
-              Add To Tier
-            </button>
-          </form>
+          )}
           <div className="mb-2">
-            <h2 className="text-2xl pb-2">Current Tierlist</h2>
+            <h2 className="text-2xl pb-2">
+              {canEdit ? "Current Tierlist" : `${addressToUse}'s Tierlist`}
+            </h2>
             {Object.keys(tierlistMap).map((tier: string) => {
               const assignedItems = tierlistMap[tier];
               return (
@@ -192,12 +206,22 @@ const Tierlist = () => {
               );
             })}
           </div>
-          <button
-            onClick={saveTierlist}
-            className="border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline mb-2"
-          >
-            Save Tierlist
-          </button>
+          {canEdit && (
+            <div className="flex">
+              <button
+                onClick={saveTierlist}
+                className="border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline mb-2 mr-2"
+              >
+                Save Tierlist
+              </button>
+              <button
+                onClick={shareTierlist}
+                className="border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline mb-2"
+              >
+                Share Tierlist
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </WalletLoader>
