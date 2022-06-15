@@ -76,7 +76,6 @@ const Tierlist = () => {
 
   const saveTierlist = async (e: React.MouseEvent) => {
     e.preventDefault();
-    console.log(tierlist);
     try {
       const msg = { save_tierlist: { tierlist } };
       await signingClient?.execute(
@@ -93,7 +92,8 @@ const Tierlist = () => {
 
   const shareTierlist = (e: React.MouseEvent) => {
     e.preventDefault();
-    const url = window.origin + router.asPath;
+    const url =
+      window.origin + router.asPath.split("?")[0] + "?address=" + addressToUse;
     navigator.clipboard.writeText(url);
     setMessage("Share link copied to clipboard!");
   };
@@ -107,7 +107,6 @@ const Tierlist = () => {
     }
     tierlistMap[t].push(i);
   });
-  console.log(tierlistMap);
 
   if (isNaN(casted)) {
     return <div>Error</div>;
@@ -149,7 +148,6 @@ const Tierlist = () => {
                         Select an Item
                       </option>
                       {tierlist?.items_to_tiers.map((item: any) => {
-                        console.log(item);
                         return (
                           <option key={item[0].name} value={item[0].name}>
                             {item[0].name}
