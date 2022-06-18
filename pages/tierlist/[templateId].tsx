@@ -90,6 +90,74 @@ const Tierlist = () => {
     }
   };
 
+  const promoteTier = (e: React.MouseEvent, tier: string) => {
+    const currentTierOrder: string[] = [];
+    tierlist.items_to_tiers.forEach((i: any) => {
+      const tier: string = i[1];
+      if (currentTierOrder.indexOf(tier) === -1) {
+        currentTierOrder.push(tier);
+      }
+    });
+    const tierToPromoteCurrentIndex = currentTierOrder.indexOf(tier);
+    const tierToPromoteDesiredIndex =
+      tierToPromoteCurrentIndex === 0 ? 0 : tierToPromoteCurrentIndex - 1;
+
+    const tmp = currentTierOrder[tierToPromoteDesiredIndex];
+    currentTierOrder[tierToPromoteDesiredIndex] =
+      currentTierOrder[tierToPromoteCurrentIndex];
+    currentTierOrder[tierToPromoteCurrentIndex] = tmp;
+
+    const newItemsToTiers: any[] = [];
+    currentTierOrder.forEach((tier) => {
+      tierlist.items_to_tiers.forEach((i: any) => {
+        const itemTier: string = i[1];
+        if (tier === itemTier) {
+          newItemsToTiers.push(i);
+        }
+      });
+    });
+
+    setTierlist({
+      template_id: tierlist.template_id,
+      items_to_tiers: newItemsToTiers,
+    });
+  };
+
+  const demoteTier = (e: React.MouseEvent, tier: string) => {
+    const currentTierOrder: string[] = [];
+    tierlist.items_to_tiers.forEach((i: any) => {
+      const tier: string = i[1];
+      if (currentTierOrder.indexOf(tier) === -1) {
+        currentTierOrder.push(tier);
+      }
+    });
+    const tierToPromoteCurrentIndex = currentTierOrder.indexOf(tier);
+    const tierToPromoteDesiredIndex =
+      tierToPromoteCurrentIndex === currentTierOrder.length - 1
+        ? currentTierOrder.length - 1
+        : tierToPromoteCurrentIndex + 1;
+
+    const tmp = currentTierOrder[tierToPromoteDesiredIndex];
+    currentTierOrder[tierToPromoteDesiredIndex] =
+      currentTierOrder[tierToPromoteCurrentIndex];
+    currentTierOrder[tierToPromoteCurrentIndex] = tmp;
+
+    const newItemsToTiers: any[] = [];
+    currentTierOrder.forEach((tier) => {
+      tierlist.items_to_tiers.forEach((i: any) => {
+        const itemTier: string = i[1];
+        if (tier === itemTier) {
+          newItemsToTiers.push(i);
+        }
+      });
+    });
+
+    setTierlist({
+      template_id: tierlist.template_id,
+      items_to_tiers: newItemsToTiers,
+    });
+  };
+
   const shareTierlist = (e: React.MouseEvent) => {
     e.preventDefault();
     const url =
@@ -192,9 +260,25 @@ const Tierlist = () => {
               const assignedItems = tierlistMap[tier];
               return (
                 <div key={tier} className="border-4 p-2 my-2">
-                  <h3 className="text-xl pb-2">
+                  <h3 className="text-xl">
                     {tier === "" ? "Unassigned" : tier}
                   </h3>
+                  <div className="flex pb-2">
+                    <small
+                      className="mr-2 hover:underline"
+                      style={{ cursor: "pointer" }}
+                      onClick={(e) => promoteTier(e, tier)}
+                    >
+                      Promote Tier
+                    </small>
+                    <small
+                      className="hover:underline"
+                      style={{ cursor: "pointer" }}
+                      onClick={(e) => demoteTier(e, tier)}
+                    >
+                      Demote Tier
+                    </small>
+                  </div>
                   <ul>
                     {assignedItems.map((item: any) => (
                       <li key={item.name}>{item.name}</li>
