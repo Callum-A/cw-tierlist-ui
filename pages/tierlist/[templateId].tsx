@@ -48,7 +48,32 @@ const Tierlist = () => {
         setTierlist(tierlistResponse?.tierlist);
       } else {
         // User has saved before
-        setTierlist(userTierlistResponse?.tierlist);
+        const templateItems = tierlistResponse?.tierlist?.items_to_tiers;
+        const userItems = userTierlistResponse?.tierlist?.items_to_tiers;
+        if (templateItems.length !== userItems.length) {
+          const tierlistItems: [
+            { name: string; image_url: string | null },
+            string
+          ][] = [];
+          templateItems.forEach((i: any) => {
+            const item = i[0];
+            const filtered = userItems.filter(
+              (i: any) => i[0].name === item.name
+            );
+            if (filtered.length === 0) {
+              // Item not present in user saved so add as unassigned
+              tierlistItems.push(i);
+            } else {
+              tierlistItems.push(filtered[0]);
+            }
+          });
+          setTierlist({
+            template_id: userTierlistResponse?.tierlist.template_id,
+            items_to_tiers: tierlistItems,
+          });
+        } else {
+          setTierlist(userTierlistResponse?.tierlist);
+        }
       }
       setTemplate(templateResponse?.template);
     };

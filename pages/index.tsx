@@ -94,7 +94,7 @@ const Home: NextPage = () => {
           >
             <p>Connected as: {walletAddress}</p>
           </div>
-          <TemplateForm onCreate={onCreate} />
+          <TemplateForm onCreate={onCreate} templateId={undefined} />
           <h2 className="text-2xl">Templates</h2>
           <div className="flex justify-between">
             <button

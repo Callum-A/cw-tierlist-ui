@@ -1,9 +1,14 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { useSigningClient } from "contexts/cosmwasm";
+import { useRouter } from "next/router";
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_TIERLIST_ADDRESS || "";
 
-const TemplateForm: FC<{ onCreate: Function | undefined }> = ({ onCreate }) => {
+const TemplateForm: FC<{
+  onCreate: Function | undefined;
+  templateId: number | undefined;
+}> = ({ onCreate, templateId }) => {
+  const router = useRouter();
   const { walletAddress, signingClient } = useSigningClient();
   const [title, setTitle] = useState("");
   const [itemName, setItemName] = useState("");
@@ -11,6 +16,22 @@ const TemplateForm: FC<{ onCreate: Function | undefined }> = ({ onCreate }) => {
   const [items, setItems] = useState<
     { name: string; image_url: string | null }[]
   >([]);
+
+  useEffect(() => {
+    const main = async () => {
+      if (templateId) {
+        const templateDetails = await signingClient?.queryContractSmart(
+          CONTRACT_ADDRESS,
+          { template: { id: templateId } }
+        );
+        setTitle(templateDetails?.template?.title);
+        console.log(templateDetails?.template?.items);
+        setItems(templateDetails?.template?.items || []);
+        // setItems(templateDetails?.template?.items);
+      }
+    };
+    main();
+  }, [signingClient, templateId, setTitle, setItems]);
 
   const addItem = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,9 +86,41 @@ const TemplateForm: FC<{ onCreate: Function | undefined }> = ({ onCreate }) => {
     }
   };
 
+  const editTemplate = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (
+      items.length === 0 ||
+      title.length === 0 ||
+      !signingClient ||
+      !templateId
+    ) {
+      return;
+    }
+
+    const msg = {
+      edit_template: {
+        id: templateId,
+        title,
+        items,
+      },
+    };
+    try {
+      await signingClient.execute(walletAddress, CONTRACT_ADDRESS, msg, "auto");
+      setTitle("");
+      setItemName("");
+      setItemImage("");
+      setItems([]);
+      router.push("/");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div className="p-2">
-      <h2 className="text-2xl pb-2">New Template</h2>
+      <h2 className="text-2xl pb-2">
+        {templateId ? "Edit Template" : "New Template"}
+      </h2>
       <div>
         <div className="pb-2">
           <label>
@@ -133,10 +186,10 @@ const TemplateForm: FC<{ onCreate: Function | undefined }> = ({ onCreate }) => {
       </div>
       <div className="flex justify-between">
         <button
-          onClick={createTemplate}
+          onClick={templateId ? editTemplate : createTemplate}
           className="border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline"
         >
-          Create Template
+          {templateId ? "Edit Template" : "Create Template"}
         </button>
         <button
           onClick={clearItems}
