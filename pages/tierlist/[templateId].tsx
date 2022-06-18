@@ -298,10 +298,17 @@ const Tierlist = () => {
               </button>
               <button
                 onClick={shareTierlist}
-                className="border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline mb-2"
+                className="border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline mb-2 mr-2"
               >
                 Share Tierlist
               </button>
+              {template?.creator === walletAddress && (
+                <Link href={"/edit/" + template?.id} passHref>
+                  <p className="border border-yellow-500 bg-yellow-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-yellow-600 focus:outline-none focus:shadow-outline mb-2 mr-2 cursor-pointer">
+                    Edit Template
+                  </p>
+                </Link>
+              )}
             </div>
           )}
         </div>

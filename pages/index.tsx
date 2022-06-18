@@ -127,7 +127,7 @@ const Home: NextPage = () => {
                   id={id}
                   canDelete={
                     walletAddress === template.creator ||
-                    walletAddress === config.admin_address
+                    walletAddress === config?.admin_address
                   }
                   deleteTemplate={deleteTemplate}
                 />
