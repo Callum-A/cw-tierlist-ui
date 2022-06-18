@@ -11,16 +11,44 @@ const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_TIERLIST_ADDRESS || "";
 const Home: NextPage = () => {
   const { signingClient, walletAddress, disconnect } = useSigningClient();
   const [templates, setTemplates] = useState<[number, any][]>();
+  const [config, setConfig] = useState<any>({ admin_address: "" });
   useEffect(() => {
     const main = async () => {
       const templates: [number, any][] =
         await signingClient?.queryContractSmart(CONTRACT_ADDRESS, {
           templates: { start_after: null, limit: null },
         });
+      const config: { admin_address: string } =
+        await signingClient?.queryContractSmart(CONTRACT_ADDRESS, {
+          config: {},
+        });
+      setConfig(config);
       setTemplates(templates);
     };
     main();
   }, [signingClient]);
+
+  const deleteTemplate = async (e: React.MouseEvent, id: number) => {
+    e.preventDefault();
+
+    const msg = {
+      delete_template: {
+        id,
+      },
+    };
+    try {
+      await signingClient?.execute(
+        walletAddress,
+        CONTRACT_ADDRESS,
+        msg,
+        "auto"
+      );
+      // Call on create to refresh list
+      onCreate();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const onCreate = async () => {
     const templates: [number, any][] = await signingClient?.queryContractSmart(
@@ -50,7 +78,18 @@ const Home: NextPage = () => {
             {templates?.map((tuple) => {
               const id = tuple[0];
               const template = tuple[1];
-              return <TemplateListItem key={id} template={template} id={id} />;
+              return (
+                <TemplateListItem
+                  key={id}
+                  template={template}
+                  id={id}
+                  canDelete={
+                    walletAddress === template.creator ||
+                    walletAddress === config.admin_address
+                  }
+                  deleteTemplate={deleteTemplate}
+                />
+              );
             })}
           </div>
         </div>
