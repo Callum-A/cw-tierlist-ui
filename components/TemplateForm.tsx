@@ -172,7 +172,7 @@ const TemplateForm: FC<{
             {items.map((item) => {
               return (
                 <li
-                  className="pb-2"
+                  className="pb-2 hover:underline hover:text-red-600"
                   key={item.name}
                   onClick={(e) => removeItem(e, item.name)}
                   style={{ cursor: "pointer" }}
