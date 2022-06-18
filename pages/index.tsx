@@ -7,16 +7,21 @@ import TemplateForm from "components/TemplateForm";
 import TemplateListItem from "components/TemplateListItem";
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_TIERLIST_ADDRESS || "";
+const LIMIT = 10;
 
 const Home: NextPage = () => {
   const { signingClient, walletAddress, disconnect } = useSigningClient();
+  const [currentPage, setCurrentPage] = useState(1);
   const [templates, setTemplates] = useState<[number, any][]>();
   const [config, setConfig] = useState<any>({ admin_address: "" });
   useEffect(() => {
     const main = async () => {
       const templates: [number, any][] =
         await signingClient?.queryContractSmart(CONTRACT_ADDRESS, {
-          templates: { start_after: null, limit: null },
+          templates: {
+            start_after: (currentPage - 1) * 10,
+            limit: 10,
+          },
         });
       const config: { admin_address: string } =
         await signingClient?.queryContractSmart(CONTRACT_ADDRESS, {
@@ -26,7 +31,7 @@ const Home: NextPage = () => {
       setTemplates(templates);
     };
     main();
-  }, [signingClient]);
+  }, [signingClient, currentPage]);
 
   const deleteTemplate = async (e: React.MouseEvent, id: number) => {
     e.preventDefault();
@@ -54,10 +59,27 @@ const Home: NextPage = () => {
     const templates: [number, any][] = await signingClient?.queryContractSmart(
       CONTRACT_ADDRESS,
       {
-        templates: { start_after: null, limit: null },
+        templates: {
+          start_after: (currentPage - 1) * LIMIT,
+          limit: null,
+        },
       }
     );
     setTemplates(templates);
+  };
+
+  const nextPage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setCurrentPage(currentPage + 1);
+    onCreate();
+  };
+
+  const previousPage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (currentPage !== 1) {
+      setCurrentPage(currentPage - 1);
+      onCreate();
+    }
   };
 
   return (
@@ -74,6 +96,26 @@ const Home: NextPage = () => {
           </div>
           <TemplateForm onCreate={onCreate} />
           <h2 className="text-2xl">Templates</h2>
+          <div className="flex justify-between">
+            <button
+              onClick={previousPage}
+              className="border border-indigo-500 bg-indigo-500 text-white rounded-md p-1 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline mb-2"
+            >
+              Previous Page
+            </button>
+            <p>{currentPage}</p>
+            <button
+              onClick={nextPage}
+              disabled={templates?.length !== LIMIT}
+              className={
+                templates?.length !== LIMIT
+                  ? "border border-gray-300 bg-gray-300 text-white rounded-md p-1 transition duration-500 ease select-none focus:outline-none focus:shadow-outline mb-2 cursor-not-allowed"
+                  : "border border-indigo-500 bg-indigo-500 text-white rounded-md p-1 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline mb-2"
+              }
+            >
+              Next Page
+            </button>
+          </div>
           <div>
             {templates?.map((tuple) => {
               const id = tuple[0];
